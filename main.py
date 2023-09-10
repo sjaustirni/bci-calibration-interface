@@ -38,7 +38,7 @@ def main():
     if arg_parser.parse_args().fullscreen:
         screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     else:
-        screen = pygame.display.set_mode((1024, 768))
+        screen = pygame.display.set_mode((800, 600))
     
     try:
         scene: Scene = create_scene(arg_parser.parse_args().mode, THRESHOLD)
