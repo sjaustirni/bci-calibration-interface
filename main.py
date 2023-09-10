@@ -1,6 +1,9 @@
 import argparse
 import matplotlib.pyplot as plt
 import os
+
+from scene import Scene
+
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 import pygame
@@ -15,8 +18,8 @@ def create_scene(mode, threshold):
         return EMGSetup(threshold)
     # elif mode == "game":
     #     pass
-    # elif mode == "instructions":
-    #     pass
+    elif mode == "instructions":
+        return InstructionScene()
     else:
         raise ValueError(f"Unknown mode: {mode}")
 
@@ -38,7 +41,7 @@ def main():
         screen = pygame.display.set_mode((1024, 768))
     
     try:
-        scene = create_scene(arg_parser.parse_args().mode, THRESHOLD)
+        scene: Scene = create_scene(arg_parser.parse_args().mode, THRESHOLD)
     except ValueError as e:
         print(e)
         return
@@ -62,6 +65,10 @@ def main():
             # Did the user press Q?
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_q:
                 running = False
+            # Did the user press F?
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_f:
+                pygame.display.toggle_fullscreen()
+            scene.process_event(event)
             
         scene.draw(screen, emg)
     
