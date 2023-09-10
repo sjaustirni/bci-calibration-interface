@@ -1,4 +1,4 @@
-# Brain-Computer Interface calibration interface
+# Brain-Computer Interface calibration
 
 An EMG-controlled interface for BCI calibration with a gamification mode powered via [Brainflow](https://brainflow.org/).
 
