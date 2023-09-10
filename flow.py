@@ -1,4 +1,4 @@
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, BrainFlowPresets
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
 
 class Flow:
@@ -34,18 +34,20 @@ class Flow:
     
     def _get_data(self):
         if self.playback:
-            value = float(self.data.pop(0).split(" ")[1]) * 100
-            return None, [value], [value]
+            try:
+                value = float(self.data.pop(0).split(" ")[1]) * 100
+                return None, [value]
+            except IndexError:
+                return None, []
         return self.board.get_board_data()
     
     def get_user_input(self, data=None):
         if data is None:
             data = self._get_data()
         
-        emg_1 = data[1]
-        emg_2 = data[2]
+        emg = data[1]
         
-        if len(emg_1) > 0 or len(emg_2) > 0:
-            return emg_1[0], emg_2[0]
+        if len(emg) > 0:
+            return emg[0]
         else:
-            return 0, 0
+            return None
