@@ -2,9 +2,12 @@
 
 An EMG-controlled interface for BCI calibration with a gamification mode powered via [Brainflow](https://brainflow.org/).
 
+> [!WARNING]  
+> This repository is a work in progress and is not ready for use.
+
 This interface has two modes:
 * An instruction-only interface with no feedback
-* A gamified interface with EMG feedback
+* A gamified interface with EMG feedback **(not implemented yet)**
 
 The goal of this project is to provide an interface for subjects performing motor imagery tasks. The gamification mode is intended to provide a more engaging experience for subjects.
 
