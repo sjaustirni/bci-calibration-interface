@@ -17,6 +17,6 @@ The goal of this project is to provide an interface for subjects performing moto
 * Run the interface with `python main.py`
   * There are three scenes available:
     * `--mode setup` will allow you to find the correct EMG threshold for the subject
-    * `--mode instruction` will display the scene with bare motor imagery instructions
+    * `--mode instructions` will display the scene with bare motor imagery instructions
     * `--mode game` will display the scene with the gamified interface
   * There are a couple of options available, consult `python main.py --help` for more information
