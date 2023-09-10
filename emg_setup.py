@@ -1,5 +1,5 @@
 import pygame
-
+import constants
 
 class EMGSetup():
     """
@@ -16,7 +16,7 @@ class EMGSetup():
             self.emg = emg
         
         # Fill the background with white
-        screen.fill((255, 255, 255))
+        screen.fill(constants.BACKGROUND)
         
         self.draw_test(screen)
         
@@ -24,8 +24,11 @@ class EMGSetup():
         pygame.display.flip()
     
     def draw_test(self, screen):
-        text_surf = self.font.render(str(int(self.emg)), True, (0, 128, 0))
+        text_surf = self.font.render(str(int(self.emg)), True, constants.TEXT)
         screen.blit(text_surf, (10, 10))
         
+        center = pygame.display.get_window_size()
+        center = (center[0] / 2, center[1] / 2)
+        
         if self.emg > self.threshold:
-            pygame.draw.circle(screen, (0, 0, 255), (250, 250), self.emg)
+            pygame.draw.circle(screen, constants.HIGHLIGHT, center, self.emg)
