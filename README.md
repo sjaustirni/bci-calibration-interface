@@ -14,9 +14,13 @@ The goal of this project is to provide an interface for subjects performing moto
 * Install the dependencies with `pip install -r requirements.txt`
 
 ## Usage
-* Run the interface with `python main.py`
-  * There are three scenes available:
-    * `--mode setup` will allow you to find the correct EMG threshold for the subject
-    * `--mode instructions` will display the scene with bare motor imagery instructions
-    * `--mode game` will display the scene with the gamified interface
-  * There are a couple of options available, consult `python main.py --help` for more information
+Run the interface with `python main.py`. There are three scenes available:
+  * `--mode setup` (default) will allow you to find the correct EMG threshold for the subject
+  * `--mode instructions` will display the scene with bare motor imagery instructions
+  * `--mode game` will display the scene with the gamified interface
+
+You can ingest data from a file using `--playback` option, which will read from `emg-example.txt` (see the file for the format).
+
+Alternatively, you can ingest data from OpenBCI (if `--playback` is not provided). This assumes the OpenBCI GUI is running and streaming data to `225.1.1.1:6677`. At this time the program only reads the data from the channel 1.
+
+There are a couple of other options available, consult `python main.py --help` for more information
