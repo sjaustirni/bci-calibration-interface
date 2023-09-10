@@ -49,7 +49,7 @@ def main():
     flow = Flow(playback=arg_parser.parse_args().playback)
     flow.start()
     
-    emg_filter = Filter()
+    emg_filter = Filter(sampling_frequency=flow.get_sample_rate(), bandpass_high=min(flow.get_sample_rate() / 2 - 1, 200))
     
     running = True
     while running:
@@ -74,6 +74,10 @@ def main():
     
     plt.plot(emg_filter.output)
     plt.show()
+    
+    plt.plot(emg_filter.input)
+    plt.show()
+
     flow.stop()
     pygame.quit()
 

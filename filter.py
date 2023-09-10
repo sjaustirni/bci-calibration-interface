@@ -28,6 +28,7 @@ class Filter:
         nyquist = 0.5 * self.fs
         low = self.bandpass_low / nyquist
         high = self.bandpass_high / nyquist
+        
         b, a = signal.butter(self.bandpass_order, [low, high], btype='band')
         return b, a
     
