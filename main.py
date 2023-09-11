@@ -1,23 +1,22 @@
 import argparse
 import matplotlib.pyplot as plt
 import os
-
-from scene import Scene
-
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
-
-import pygame
 from filter import Filter
 from flow import Flow
-from instructions_scene import InstructionScene
+
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+import pygame
+from scene import Scene
 from emg_setup import EMGSetup
+from instructions_scene import InstructionScene
+from game_scene import GameScene
 
 
 def create_scene(mode, threshold):
     if mode == "setup":
         return EMGSetup(threshold)
-    # elif mode == "game":
-    #     pass
+    elif mode == "game":
+        return GameScene()
     elif mode == "instructions":
         return InstructionScene()
     else:
@@ -51,6 +50,7 @@ def main():
     
     emg_filter = Filter(sampling_frequency=flow.get_sample_rate(), bandpass_high=min(flow.get_sample_rate() / 2 - 1, 200))
     
+    clock = pygame.time.Clock()
     running = True
     while running:
         emg = flow.get_user_input()
@@ -71,6 +71,7 @@ def main():
             scene.process_event(event)
             
         scene.draw(screen, emg)
+        clock.tick(60)
     
     plt.plot(emg_filter.output)
     plt.show()

@@ -7,7 +7,7 @@ An EMG-controlled interface for BCI calibration with a gamification mode powered
 
 This interface has two modes:
 * An instruction-only interface with no feedback
-* A gamified interface with EMG feedback **(not implemented yet)**
+* A gamified interface with EMG feedback **(work in progress)**
 
 The goal of this project is to provide an interface for subjects performing motor imagery tasks. The gamification mode is intended to provide a more engaging experience for subjects.
 
@@ -27,3 +27,9 @@ You can ingest data from a file using `--playback` option, which will read from 
 Alternatively, you can ingest data from OpenBCI (if `--playback` is not provided). This assumes the OpenBCI GUI is running and streaming data to `225.1.1.1:6677`. At this time the program only reads the data from the channel 1.
 
 There are a couple of other options available, consult `python main.py --help` for more information
+
+# Licensing
+
+The code is licensed under the GPLv3 license. See the LICENSE file for more information.
+
+The graphical assets are created by [Kenney](https://kenney.nl) and are CC0 licensed (public domain). See the ASSETS-LICENSE file for more information.
