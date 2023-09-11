@@ -1,18 +1,22 @@
-from scene import Scene
-import pygame
-import constants
 import random
 
-GAME_SPEED = 4
-GRAVITY = 0.4
+import pygame
+
+import constants
+from scene import Scene
+
+GAME_SPEED = 4  # 2 tiles per second at 60 fps
+GRAVITY = 0.065
+
 
 class Player:
     def __init__(self, ground):
         self.player_walk_1 = pygame.image.load("assets/PNG/Players/128x256/Yellow/alienYellow_walk1.png")
         self.player_walk_2 = pygame.image.load("assets/PNG/Players/128x256/Yellow/alienYellow_walk2.png")
         self.player_jump = pygame.image.load("assets/PNG/Players/128x256/Yellow/alienYellow_jump.png")
+        self.player_stand = pygame.image.load("assets/PNG/Players/128x256/Yellow/alienYellow_stand.png")
         
-        self.current_image = self.player_walk_1
+        self.current_image = self.player_stand
         self.last_walk_tick = pygame.time.get_ticks()
         
         self.player_ground = ground - self.player_walk_1.get_height()
@@ -20,20 +24,23 @@ class Player:
         
         self.vel_y = 0
     
-    def draw(self, screen):
+    def draw(self, screen, started):
         self._update()
-
-        if self._is_jumping():
-            self._draw_jump()
+        
+        if started:
+            if self._is_jumping():
+                self._draw_jump()
+            else:
+                self._draw_walk()
         else:
-            self._draw_walk()
-
+            self.current_image = self.player_stand
+        
         screen.blit(self.current_image,
                     (pygame.display.get_window_size()[0] / 3 - self.current_image.get_width() / 2, self.y))
-        
+    
     def jump(self):
         if not self._is_jumping():
-            self.vel_y = -20
+            self.vel_y = -10
     
     def _update(self):
         self.y += self.vel_y
@@ -51,7 +58,7 @@ class Player:
     
     def _draw_jump(self):
         self.current_image = self.player_jump
-        
+    
     def _is_jumping(self):
         return self.y < self.player_ground
 
@@ -63,7 +70,6 @@ class GameScene(Scene):
         self.background_image = pygame.image.load("assets/Backgrounds/backgroundEmpty.png")
         self.background_image = pygame.transform.scale(self.background_image, pygame.display.get_window_size())
         
-        
         self.ground_left = pygame.image.load("assets/PNG/Ground/Grass/grassLeft.png")
         self.ground_right = pygame.image.load("assets/PNG/Ground/Grass/grassRight.png")
         self.ground = pygame.image.load("assets/PNG/Ground/Grass/grassMid.png")
@@ -74,20 +80,21 @@ class GameScene(Scene):
         self.tile_width = self.ground.get_width()
         self.tile_height = self.ground.get_height()
         
-        self.obstacle_no = 10
-        self.tiles_per_obstacle = 5
+        self.obstacle_no = 20
+        self.tiles_per_obstacle = 20  # (a little over) 5 seconds at 60 fps
         self.start_tile = 20
         
         self.left_corner = 0
-        self.level_width = self.start_tile + self.tiles_per_obstacle * (self.obstacle_no + 4) # in tiles
+        self.level_width = self.start_tile + self.tiles_per_obstacle * (self.obstacle_no + 4)  # in tiles
         self.y = pygame.display.get_window_size()[1] - self.tile_height
         
         self.player = Player(ground=self.y)
         self.obstacles = self._generate_obstacles()
-    
+        self.started = False
     
     def draw(self, screen, _emg):
-        self.left_corner -= GAME_SPEED
+        if self.started:
+            self.left_corner -= GAME_SPEED
         
         screen.fill(constants.BACKGROUND)
         screen.blit(self.background_image, (0, 0))
@@ -95,7 +102,7 @@ class GameScene(Scene):
         self._draw_ground(screen)
         self._draw_obstacles(screen)
         
-        self.player.draw(screen)
+        self.player.draw(screen, self.started)
         
         # Flip the display
         pygame.display.flip()
@@ -103,18 +110,20 @@ class GameScene(Scene):
     def process_event(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             self.player.jump()
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
+            self.started = True
     
     def _generate_obstacles(self):
         obstacles = []
-        for i in range(0, 10):
-            x = random.randrange(self.tile_width*self.start_tile, self.tile_width * self.level_width, self.tile_width*self.tiles_per_obstacle)
+        for i in range(0, self.obstacle_no):
+            x = self.tile_width * self.start_tile + self.tile_width * self.tiles_per_obstacle * i
             print(x)
             if random.random() < 0.5:
                 obstacles.append(("CACTUS", x))
             else:
                 obstacles.append(("SPIKES", x))
         return obstacles
-
+    
     def _draw_obstacles(self, screen):
         a = self.left_corner
         for obstacle in self.obstacles:
@@ -131,5 +140,3 @@ class GameScene(Scene):
         for i in range(1, self.level_width):
             screen.blit(self.ground, (a + i * self.tile_width, y))
         screen.blit(self.ground_right, (a + self.level_width * self.tile_width, y))
-        
-        
