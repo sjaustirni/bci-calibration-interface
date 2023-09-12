@@ -6,7 +6,7 @@ import constants
 from scene import Scene
 
 GAME_SPEED = 4  # 2 tiles per second at 60 fps
-GRAVITY = 0.065
+GRAVITY = 0.062
 HIT_PENALTY = 3000  # 3s of penalty
 
 
@@ -18,7 +18,8 @@ def _tint_surf(original, colour):
 
 
 class Player:
-    def __init__(self, ground):
+    def __init__(self, game, ground):
+        self.game = game
         self.player_walk_1 = pygame.image.load("assets/PNG/Players/128x256/Yellow/alienYellow_walk1.png")
         self.player_walk_2 = pygame.image.load("assets/PNG/Players/128x256/Yellow/alienYellow_walk2.png")
         self.player_jump = pygame.image.load("assets/PNG/Players/128x256/Yellow/alienYellow_jump.png")
@@ -30,11 +31,14 @@ class Player:
 
         self.player_ground = ground - self.player_walk_1.get_height()
         self.y = self.player_ground
-        self.x = pygame.display.get_window_size()[0] / 3 - self.current_image.get_width() / 2
+        self.x = self.get_start_position()
 
         self.vel_y = 0
         self.last_hit = None
         self.started = False
+
+    def get_start_position(self):
+        return pygame.display.get_window_size()[0] / 3 - self.current_image.get_width() / 2
 
     def draw(self, screen, started):
         self.started = started
@@ -44,7 +48,14 @@ class Player:
         screen.blit(self.current_image, (self.x, self.y))
 
     def jump(self):
-        if not self._is_jumping():
+        # No double jump allowed
+        if self.is_jumping():
+            return
+        # Only allow jumping in the motor imagery (perform) phase
+        if self.game.current_game_tile() in self.game.get_non_jumpy_tiles():
+            return
+        # Only allow jumping if we are not under penalty
+        if self.last_hit is None or self.game.time_since_hit_gt(HIT_PENALTY):
             self.vel_y = -10
 
     def hit(self):
@@ -69,7 +80,7 @@ class Player:
     def _draw_jump(self):
         self.current_image = self.player_jump
 
-    def _is_jumping(self):
+    def is_jumping(self):
         return self.y < self.player_ground
 
     def _set_player_surface(self):
@@ -80,7 +91,7 @@ class Player:
                 if time_since_hit < HIT_PENALTY:
                     self.current_image = self.player_hit
                     return
-            if self._is_jumping():
+            if self.is_jumping():
                 self._draw_jump()
                 return
             self._draw_walk()
@@ -107,21 +118,25 @@ class GameScene(Scene):
         self.tile_height = self.ground.get_height()
 
         self.obstacle_no = 20
-        self.tiles_per_obstacle = 20  # (a little over) 5 seconds at 60 fps
+        self.tiles_per_obstacle = 22  # (a little over) 5 seconds at 60 fps
         self.start_tile = 20
 
         self.left_corner = 0
         self.level_width = self.start_tile + self.tiles_per_obstacle * (self.obstacle_no + 4)  # in tiles
         self.y = pygame.display.get_window_size()[1] - self.tile_height
 
-        self.player = Player(ground=self.y)
+        self.player = Player(game=self, ground=self.y)
         self.obstacles = self._generate_obstacles()
         self.started = False
 
     def draw(self, screen, _emg):
         # Only move player forward if the game is running and they are not under penalty
-        if self.started and self._time_since_hit_gt(HIT_PENALTY):
-            self.left_corner -= GAME_SPEED
+        if self.started and self.time_since_hit_gt(HIT_PENALTY):
+            # Make jump a little faster to account for the extra tile with obstacle
+            if self.player.is_jumping():
+                self.left_corner -= GAME_SPEED * 1.15
+            else:
+                self.left_corner -= GAME_SPEED
 
         screen.fill(constants.BACKGROUND)
         screen.blit(self.background_image, (0, 0))
@@ -149,7 +164,7 @@ class GameScene(Scene):
         hit_obstacle = player_rect.collidelist(obstacle_rects)
 
         # Give player 2s to get out of the obstacle
-        hit_amnesty = not self._time_since_hit_gt(HIT_PENALTY + 2000)
+        hit_amnesty = not self.time_since_hit_gt(HIT_PENALTY + 2000)
         if hit_obstacle >= 0:
             if self.player.last_hit is None or not hit_amnesty:  # First hit
                 self.player.hit()
@@ -164,7 +179,7 @@ class GameScene(Scene):
         pygame.draw.rect(screen, color=player_colour, rect=player_rect)
 
     def process_event(self, event):
-        if self.started and (self.player.last_hit is None or self._time_since_hit_gt(HIT_PENALTY)):
+        if self.started:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 self.player.jump()
         else:
@@ -181,7 +196,7 @@ class GameScene(Scene):
                 obstacles.append(("SPIKES", x))
         return obstacles
 
-    def _time_since_hit_gt(self, duration):
+    def time_since_hit_gt(self, duration):
         """
         Returns True if time since the player hit an obstacle last time is greater than the supplied duration in ms.
         Otherwise, returns False.
@@ -204,9 +219,24 @@ class GameScene(Scene):
         y = self.y
 
         screen.blit(self.ground_left, (a, y))
-        obstacle_tiles = [(self.start_tile + self.tiles_per_obstacle * i) for i in range(0, self.obstacle_no)]
+        
+        non_jumpy_tiles = self.get_non_jumpy_tiles()
         for i in range(1, self.level_width):
-            is_obstacle = i in obstacle_tiles
-            tile = self.sand if is_obstacle else self.ground
+            tile = self.sand if i in non_jumpy_tiles else self.ground
             screen.blit(tile, (a + i * self.tile_width, y))
         screen.blit(self.ground_right, (a + self.level_width * self.tile_width, y))
+        
+    def get_non_jumpy_tiles(self):
+        obstacle_tiles = [(self.start_tile + self.tiles_per_obstacle * i) for i in range(0, self.obstacle_no)]
+        preparation_tiles = []
+        for obstacle_tile in obstacle_tiles:
+            moar = [obstacle_tile - i for i in range(self.tiles_per_obstacle - 11, self.tiles_per_obstacle)]
+            preparation_tiles.extend(moar)
+        return obstacle_tiles + preparation_tiles
+    
+    def current_game_tile(self):
+        """
+        :return: The no. tile the player is currently on.
+        """
+        
+        return int((-self.left_corner + self.player.get_start_position()) / self.tile_width)
