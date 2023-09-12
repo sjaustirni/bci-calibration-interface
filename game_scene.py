@@ -17,6 +17,31 @@ def _tint_surf(original, colour):
     return surf
 
 
+class Flag:
+    def __init__(self, game):
+        self.game = game
+        self.flag_1 = pygame.image.load("assets/PNG/Items/flagYellow1.png")
+        self.flag_2 = pygame.image.load("assets/PNG/Items/flagYellow2.png")
+        
+        self.current_image = self.flag_1
+        self.last_flag_tick = pygame.time.get_ticks()
+        
+    def draw(self, screen):
+        self._update()
+        
+        a = self.game.left_corner
+        flag_tile = self.game.get_obstacle_tiles()[-1] + self.game.tiles_per_obstacle
+        x = a + flag_tile * self.game.tile_width
+        y = self.game.y - self.flag_1.get_height()
+        
+        screen.blit(self.current_image, (x, y))
+    
+    def _update(self):
+        ticks = pygame.time.get_ticks()
+        if ticks - self.last_flag_tick > 200:
+            self.last_flag_tick = ticks
+            self.current_image = self.flag_1 if self.current_image == self.flag_2 else self.flag_2
+
 class Player:
     def __init__(self, game, ground):
         self.game = game
@@ -48,6 +73,9 @@ class Player:
         screen.blit(self.current_image, (self.x, self.y))
 
     def jump(self):
+        # Only allow jumping if the game is running
+        if self.game.reached_goal():
+            return
         # No double jump allowed
         if self.is_jumping():
             return
@@ -94,7 +122,10 @@ class Player:
             if self.is_jumping():
                 self._draw_jump()
                 return
-            self._draw_walk()
+            if self.game.reached_goal():
+                self.current_image = self.player_stand
+            else:
+                self._draw_walk()
             return
         self.current_image = self.player_stand
 
@@ -113,25 +144,31 @@ class GameScene(Scene):
 
         self.cactus = pygame.image.load("assets/PNG/Tiles/cactus.png")
         self.spikes = pygame.image.load("assets/PNG/Tiles/spikes.png")
+        
+        self.star = pygame.image.load("assets/PNG/Items/star.png")
 
         self.tile_width = self.ground.get_width()
         self.tile_height = self.ground.get_height()
 
-        self.obstacle_no = 20
+        self.obstacle_no = 10
         self.tiles_per_obstacle = 26  # (a little over) 5 seconds at 60 fps
         self.start_tile = 31
 
         self.left_corner = 0
-        self.level_width = self.start_tile + self.tiles_per_obstacle * (self.obstacle_no + 4)  # in tiles
+        self.level_width = self.start_tile + self.tiles_per_obstacle * self.obstacle_no  # in tiles
         self.y = pygame.display.get_window_size()[1] - self.tile_height
+        
+        self.no_obstacles_hit = 0
 
         self.player = Player(game=self, ground=self.y)
         self.obstacles = self._generate_obstacles()
         self.started = False
+        
+        self.flag = Flag(self)
 
     def draw(self, screen, _emg):
         # Only move player forward if the game is running and they are not under penalty
-        if self.started and self.time_since_hit_gt(HIT_PENALTY):
+        if self.started and self.time_since_hit_gt(HIT_PENALTY) and not self.reached_goal():
             # Make jump a little faster to account for the extra tile with obstacle
             if self.player.is_jumping():
                 self.left_corner -= GAME_SPEED * 1.2
@@ -145,6 +182,11 @@ class GameScene(Scene):
         self._draw_obstacles(screen)
 
         self.player.draw(screen, self.started)
+        self.flag.draw(screen)
+        
+        if self.reached_goal():
+            self._draw_end_screen(screen)
+        
         self.update(screen)
 
         # Flip the display
@@ -166,8 +208,9 @@ class GameScene(Scene):
         # Give player 2s to get out of the obstacle
         hit_amnesty = not self.time_since_hit_gt(HIT_PENALTY + 2000)
         if hit_obstacle >= 0 and not self.player.is_jumping():
-            if self.player.last_hit is None or not hit_amnesty:  # First hit
+            if self.player.last_hit is None or not hit_amnesty:
                 self.player.hit()
+                self.no_obstacles_hit += 1
 
         debug = False
         if not debug:
@@ -226,12 +269,24 @@ class GameScene(Scene):
             screen.blit(tile, (a + i * self.tile_width, y))
         screen.blit(self.ground_right, (a + self.level_width * self.tile_width, y))
         
+    def _draw_end_screen(self, screen):
+        obstacles_avoided = self.obstacle_no - self.no_obstacles_hit
+        win_ratio = obstacles_avoided / self.obstacle_no
+        no_stars = 3 if win_ratio > 0.9 else 2 if win_ratio > 0.5 else 1
+        
+        for i in range(0, no_stars):
+            screen.blit(self.star, (pygame.display.get_window_size()[0] / 2 - self.star.get_width() * (no_stars - 1) / 2 + i * self.star.get_width(), pygame.display.get_window_size()[1] / 2))
+
+        
     def get_non_jumpy_tiles(self):
-        obstacle_tiles = [(self.start_tile + self.tiles_per_obstacle * i) for i in range(0, self.obstacle_no)]
+        obstacle_tiles = self.get_obstacle_tiles()
         preparation_tiles = []
         for obstacle_tile in obstacle_tiles:
             preparation_tiles.extend([obstacle_tile - i for i in range(self.tiles_per_obstacle - 14, self.tiles_per_obstacle)])
-        return obstacle_tiles + preparation_tiles + list(range(0, min(preparation_tiles)))
+        return obstacle_tiles + preparation_tiles + list(range(0, min(preparation_tiles))) + list(range(max(obstacle_tiles), self.level_width))
+    
+    def get_obstacle_tiles(self):
+        return [(self.start_tile + self.tiles_per_obstacle * i) for i in range(0, self.obstacle_no)]
     
     def current_game_tile(self):
         """
@@ -239,3 +294,10 @@ class GameScene(Scene):
         """
         
         return int((-self.left_corner + self.player.get_start_position()) / self.tile_width)
+    
+    def reached_goal(self):
+        """
+        :return: True if the player has reached the goal, False otherwise.
+        """
+        
+        return self.current_game_tile() >= self.level_width
