@@ -98,6 +98,7 @@ class GameScene(Scene):
         self.ground_left = pygame.image.load("assets/PNG/Ground/Grass/grassLeft.png")
         self.ground_right = pygame.image.load("assets/PNG/Ground/Grass/grassRight.png")
         self.ground = pygame.image.load("assets/PNG/Ground/Grass/grassMid.png")
+        self.sand = pygame.image.load("assets/PNG/Ground/Sand/sandMid.png")
 
         self.cactus = pygame.image.load("assets/PNG/Tiles/cactus.png")
         self.spikes = pygame.image.load("assets/PNG/Tiles/spikes.png")
@@ -203,6 +204,9 @@ class GameScene(Scene):
         y = self.y
 
         screen.blit(self.ground_left, (a, y))
+        obstacle_tiles = [(self.start_tile + self.tiles_per_obstacle * i) for i in range(0, self.obstacle_no)]
         for i in range(1, self.level_width):
-            screen.blit(self.ground, (a + i * self.tile_width, y))
+            is_obstacle = i in obstacle_tiles
+            tile = self.sand if is_obstacle else self.ground
+            screen.blit(tile, (a + i * self.tile_width, y))
         screen.blit(self.ground_right, (a + self.level_width * self.tile_width, y))
