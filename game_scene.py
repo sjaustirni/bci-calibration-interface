@@ -30,7 +30,7 @@ class Flag:
         self._update()
         
         a = self.game.left_corner
-        flag_tile = self.game.get_obstacle_tiles()[-1] + self.game.tiles_per_obstacle
+        flag_tile = self.game.level_width
         x = a + flag_tile * self.game.tile_width
         y = self.game.y - self.flag_1.get_height()
         
@@ -150,12 +150,12 @@ class GameScene(Scene):
         self.tile_width = self.ground.get_width()
         self.tile_height = self.ground.get_height()
 
-        self.obstacle_no = 10
+        self.obstacle_no = 1
         self.tiles_per_obstacle = 26  # (a little over) 5 seconds at 60 fps
         self.start_tile = 31
 
         self.left_corner = 0
-        self.level_width = self.start_tile + self.tiles_per_obstacle * self.obstacle_no  # in tiles
+        self.level_width = (self.tiles_per_obstacle - 8) + self.tiles_per_obstacle * self.obstacle_no  # in tiles
         self.y = pygame.display.get_window_size()[1] - self.tile_height
         
         self.no_obstacles_hit = 0

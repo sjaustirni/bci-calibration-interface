@@ -8,7 +8,7 @@ An EMG-controlled interface for BCI calibration with a gamification mode powered
 This interface has two modes:
 * An instruction-only interface with no feedback
 ![Instruction-only interface](./README-instructions.png)
-* A gamified interface with EMG feedback **(work in progress)**
+* A gamified interface with EMG feedback
 ![Gamified interface](./README-game.png)
 
 The goal of this project is to provide an interface for subjects performing motor imagery tasks. The gamification mode is intended to provide a more engaging experience for subjects.
