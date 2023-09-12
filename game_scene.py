@@ -118,8 +118,8 @@ class GameScene(Scene):
         self.tile_height = self.ground.get_height()
 
         self.obstacle_no = 20
-        self.tiles_per_obstacle = 22  # (a little over) 5 seconds at 60 fps
-        self.start_tile = 20
+        self.tiles_per_obstacle = 26  # (a little over) 5 seconds at 60 fps
+        self.start_tile = 31
 
         self.left_corner = 0
         self.level_width = self.start_tile + self.tiles_per_obstacle * (self.obstacle_no + 4)  # in tiles
@@ -134,7 +134,7 @@ class GameScene(Scene):
         if self.started and self.time_since_hit_gt(HIT_PENALTY):
             # Make jump a little faster to account for the extra tile with obstacle
             if self.player.is_jumping():
-                self.left_corner -= GAME_SPEED * 1.15
+                self.left_corner -= GAME_SPEED * 1.2
             else:
                 self.left_corner -= GAME_SPEED
 
@@ -165,7 +165,7 @@ class GameScene(Scene):
 
         # Give player 2s to get out of the obstacle
         hit_amnesty = not self.time_since_hit_gt(HIT_PENALTY + 2000)
-        if hit_obstacle >= 0:
+        if hit_obstacle >= 0 and not self.player.is_jumping():
             if self.player.last_hit is None or not hit_amnesty:  # First hit
                 self.player.hit()
 
@@ -230,9 +230,8 @@ class GameScene(Scene):
         obstacle_tiles = [(self.start_tile + self.tiles_per_obstacle * i) for i in range(0, self.obstacle_no)]
         preparation_tiles = []
         for obstacle_tile in obstacle_tiles:
-            moar = [obstacle_tile - i for i in range(self.tiles_per_obstacle - 11, self.tiles_per_obstacle)]
-            preparation_tiles.extend(moar)
-        return obstacle_tiles + preparation_tiles
+            preparation_tiles.extend([obstacle_tile - i for i in range(self.tiles_per_obstacle - 14, self.tiles_per_obstacle)])
+        return obstacle_tiles + preparation_tiles + list(range(0, min(preparation_tiles)))
     
     def current_game_tile(self):
         """
