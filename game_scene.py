@@ -138,7 +138,7 @@ class GameScene(Scene):
         self.background_image = pygame.transform.scale(self.background_image, pygame.display.get_window_size())
 
         self.ground_left = pygame.image.load("assets/PNG/Ground/Grass/grassLeft.png")
-        self.ground_right = pygame.image.load("assets/PNG/Ground/Grass/grassRight.png")
+        self.sand_right = pygame.image.load("assets/PNG/Ground/Sand/sandRight.png")
         self.ground = pygame.image.load("assets/PNG/Ground/Grass/grassMid.png")
         self.sand = pygame.image.load("assets/PNG/Ground/Sand/sandMid.png")
 
@@ -267,7 +267,7 @@ class GameScene(Scene):
         for i in range(1, self.level_width):
             tile = self.sand if i in non_jumpy_tiles else self.ground
             screen.blit(tile, (a + i * self.tile_width, y))
-        screen.blit(self.ground_right, (a + self.level_width * self.tile_width, y))
+        screen.blit(self.sand_right, (a + self.level_width * self.tile_width, y))
         
     def _draw_end_screen(self, screen):
         obstacles_avoided = self.obstacle_no - self.no_obstacles_hit
