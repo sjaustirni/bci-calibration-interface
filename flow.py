@@ -1,9 +1,14 @@
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
-
+from datetime import datetime
+import os
 
 class Flow:
     def __init__(self, playback=False):
         self.board = None
+        # Get formatted UTC time
+        self.now = datetime.utcnow()
+        
+        
         BoardShim.enable_dev_board_logger()
         self.playback = playback
         
@@ -25,7 +30,8 @@ class Flow:
         else:
             self.board = BoardShim(BoardIds.STREAMING_BOARD, self.params)
             self.board.prepare_session()
-            self.board.start_stream()
+            os.makedirs("logs", exist_ok=True)
+            self.board.start_stream(250*2, f"file://./logs/{self.now.strftime('%Y-%m-%d-%H-%M-%S')}.csv:w")
             
     def get_sample_rate(self):
         if self.playback:
