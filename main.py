@@ -56,7 +56,8 @@ def main():
         emg = flow.get_user_input()
         
         if emg is not None:
-            emg = emg_filter.apply(emg)
+            for sample in emg:
+                emg_filter.apply(sample)
         
         for event in pygame.event.get():
             # Did the user click the window close button?

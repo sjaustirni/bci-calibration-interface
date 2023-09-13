@@ -59,6 +59,6 @@ class Flow:
         emg = data[1]
         
         if len(emg) > 0:
-            return emg[0]
+            return emg
         else:
             return None
