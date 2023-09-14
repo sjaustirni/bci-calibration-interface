@@ -1,4 +1,6 @@
 import argparse
+from datetime import datetime
+
 import matplotlib.pyplot as plt
 import os
 from filter import Filter
@@ -45,7 +47,7 @@ def main():
         print(e)
         return
     
-    flow = Flow(playback=arg_parser.parse_args().playback)
+    flow = Flow(mode=arg_parser.parse_args().mode, playback=arg_parser.parse_args().playback)
     flow.start()
     
     emg_filter = Filter(sampling_frequency=flow.get_sample_rate(), bandpass_high=min(flow.get_sample_rate() / 2 - 1, 200))
@@ -54,11 +56,11 @@ def main():
     running = True
     while running:
         emg = flow.get_user_input()
-        
+
         if emg is not None:
             for sample in emg:
                 emg_filter.apply(sample)
-        
+
         for event in pygame.event.get():
             # Did the user click the window close button?
             if event.type == pygame.QUIT:
@@ -70,13 +72,21 @@ def main():
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_f:
                 pygame.display.toggle_fullscreen()
             scene.process_event(event)
-            
-        scene.draw(screen, emg)
+
+        try:
+            last_sample = emg_filter.output[-1]
+        except:
+            last_sample = None
+        scene.draw(screen, last_sample)
         clock.tick(60)
     
     plt.plot(emg_filter.output)
     plt.show()
-    
+
+    plt.plot(emg_filter.output)
+    plt.savefig(f"logs/{datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')}_{arg_parser.parse_args().mode}.png", format="png")
+    plt.show()
+
     plt.plot(emg_filter.input)
     plt.show()
 

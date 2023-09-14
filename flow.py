@@ -3,11 +3,11 @@ from datetime import datetime
 import os
 
 class Flow:
-    def __init__(self, playback=False):
+    def __init__(self, mode, playback=False):
         self.board = None
         # Get formatted UTC time
         self.now = datetime.utcnow()
-        
+        self.mode = mode
         
         BoardShim.enable_dev_board_logger()
         self.playback = playback
@@ -31,7 +31,7 @@ class Flow:
             self.board = BoardShim(BoardIds.STREAMING_BOARD, self.params)
             self.board.prepare_session()
             os.makedirs("logs", exist_ok=True)
-            self.board.start_stream(250*2, f"file://./logs/{self.now.strftime('%Y-%m-%d-%H-%M-%S')}.csv:w")
+            self.board.start_stream(250*2, f"file://./logs/{self.now.strftime('%Y-%m-%d-%H-%M-%S')}_{self.mode}.csv:w")
             
     def get_sample_rate(self):
         if self.playback:
