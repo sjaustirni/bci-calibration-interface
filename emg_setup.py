@@ -9,8 +9,7 @@ class EMGSetup(Scene):
     """
     
     def __init__(self, threshold):
-        super().__init__()
-        self.threshold = threshold
+        super().__init__(threshold)
         self.font = pygame.font.SysFont('Arial', 30)
         self.emg = 0
     

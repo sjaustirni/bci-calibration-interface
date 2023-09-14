@@ -57,7 +57,9 @@ class InstructionScene:
     """
     Displays the instructions for motor imagery without giving any feedback.
     """
-    def __init__(self):
+    def __init__(self, threshold):
+        super().__init__(threshold)
+
         self.font = pygame.font.SysFont('Arial', 30)
         self.timing_task = TimingTask()
     

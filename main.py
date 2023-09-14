@@ -18,9 +18,9 @@ def create_scene(mode, threshold):
     if mode == "setup":
         return EMGSetup(threshold)
     elif mode == "game":
-        return GameScene()
+        return GameScene(threshold)
     elif mode == "instructions":
-        return InstructionScene()
+        return InstructionScene(threshold)
     else:
         raise ValueError(f"Unknown mode: {mode}")
 

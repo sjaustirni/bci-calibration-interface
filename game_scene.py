@@ -132,9 +132,9 @@ class Player:
 
 
 class GameScene(Scene):
-    def __init__(self):
-        super().__init__()
-        
+    def __init__(self, threshold):
+        super().__init__(threshold)
+
         self.background_image = pygame.image.load("assets/Backgrounds/backgroundEmpty.png")
         self.background_image = pygame.transform.scale(self.background_image, pygame.display.get_window_size())
         
@@ -167,7 +167,9 @@ class GameScene(Scene):
         
         self.flag = Flag(self)
     
-    def draw(self, screen, _emg):
+    def draw(self, screen, emg):
+        if self.started and emg > self.threshold:
+            self.player.jump()
         # Only move player forward if the game is running and they are not under penalty
         if self.started and self.time_since_hit_gt(HIT_PENALTY) and not self.reached_goal():
             # Make jump a little faster to account for the extra tile with obstacle

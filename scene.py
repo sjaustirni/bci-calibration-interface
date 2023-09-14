@@ -1,6 +1,6 @@
 class Scene:
-    def __init__(self):
-        pass
+    def __init__(self, threshold):
+        self.threshold = threshold
     
     def draw(self, screen, emg):
         pass
