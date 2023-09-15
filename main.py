@@ -31,9 +31,11 @@ def main():
     arg_parser.add_argument("--playback", action="store_true", help="Use a file as input instead of the EMG device")
     arg_parser.add_argument("--threshold", type=int, help="The EMG threshold, default 8", default=8)
     arg_parser.add_argument("--mode", help="'setup' (default), 'game' or 'instructions'", default="setup")
-    
+    arg_parser.add_argument("--channel", help="no. of channel that contains the EMG channel to track. Default is 0", default=0)
+    CHANNEL = int(arg_parser.parse_args().channel)
     THRESHOLD = arg_parser.parse_args().threshold
-    
+    print(f"Using channel {CHANNEL}")
+
     pygame.init()
     pygame.display.set_caption("BCI calibration")
     if arg_parser.parse_args().fullscreen:
@@ -47,7 +49,7 @@ def main():
         print(e)
         return
     
-    flow = Flow(mode=arg_parser.parse_args().mode, playback=arg_parser.parse_args().playback)
+    flow = Flow(mode=arg_parser.parse_args().mode, channel=CHANNEL, playback=arg_parser.parse_args().playback)
     flow.start()
     
     emg_filter = Filter(sampling_frequency=flow.get_sample_rate(), bandpass_high=min(flow.get_sample_rate() / 2 - 1, 200))

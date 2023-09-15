@@ -3,11 +3,12 @@ from datetime import datetime
 import os
 
 class Flow:
-    def __init__(self, mode, playback=False):
+    def __init__(self, mode, channel=0, playback=False):
         self.board = None
         # Get formatted UTC time
         self.now = datetime.utcnow()
         self.mode = mode
+        self.channel = channel
         
         BoardShim.enable_dev_board_logger()
         self.playback = playback
@@ -21,7 +22,7 @@ class Flow:
             self.params.ip_port_aux = 6678
             self.params.ip_address = "225.1.1.1"
             self.params.ip_address_aux = "225.1.1.1"
-            self.params.master_board = BoardIds.SYNTHETIC_BOARD
+            self.params.master_board = BoardIds.CYTON_BOARD
     
     def start(self):
         if self.playback:
@@ -46,7 +47,7 @@ class Flow:
     def _get_data(self):
         if self.playback:
             try:
-                value = float(self.data.pop(0).split(" ")[1]) * 100
+                value = float(self.data.pop(0).split(" ")[1])
                 return None, [value]
             except IndexError:
                 return None, []
@@ -56,7 +57,7 @@ class Flow:
         if data is None:
             data = self._get_data()
         
-        emg = data[1]
+        emg = data[self.channel]
         
         if len(emg) > 0:
             return emg
