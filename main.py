@@ -1,8 +1,9 @@
 import argparse
+import os
 from datetime import datetime
 
 import matplotlib.pyplot as plt
-import os
+
 from filter import Filter
 from flow import Flow
 
@@ -63,9 +64,7 @@ def main():
         flow.set_synthetic()
     flow.start()
 
-    emg_filter = Filter(sampling_frequency=flow.get_sample_rate(),
-                        bandpass_low=5,
-                        bandpass_high=50)
+    emg_filter = Filter(sampling_frequency=flow.get_sample_rate(), bandpass_low=5, bandpass_high=50)
 
     clock = pygame.time.Clock()
     running = True
@@ -94,9 +93,6 @@ def main():
             last_sample = None
         scene.draw(screen, last_sample)
         clock.tick(60)
-
-    plt.plot(emg_filter.output)
-    plt.show()
 
     plt.plot(emg_filter.output)
     plt.savefig(f"logs/{datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')}_{arg_parser.parse_args().mode}.png",

@@ -18,20 +18,20 @@ class Filter:
         self.bandpass_high = bandpass_high
         self.bandpass_order = bandpass_order
         self.mean_kernel_size = mean_kernel_size if mean_kernel_size else int(self.fs / 3)
-        
+
         self.input = []
         self.output = []
-        
+
         self.b, self.a = self._create_bandpass()
-    
+
     def _create_bandpass(self):
         nyquist = 0.5 * self.fs
         low = self.bandpass_low / nyquist
         high = self.bandpass_high / nyquist
-        
+
         b, a = signal.butter(self.bandpass_order, [low, high], btype='band')
         return b, a
-    
+
     def apply(self, sample):
         """
         :param sample: New sample to be filtered
@@ -39,17 +39,17 @@ class Filter:
         """
         # Rectify the input signal
         sample = abs(sample)
-        
+
         # Add the sample to the input buffer
         self.input.append(sample)
-        
+
         # Apply the bandpass filter
         if len(self.input) >= self.bandpass_order:
             sample = signal.lfilter(self.b, self.a, self.input[-self.bandpass_order:] + [sample])[self.bandpass_order]
         # Apply the mean filter
         if len(self.input) >= self.mean_kernel_size:
             sample = np.mean(self.input[-self.mean_kernel_size:] + [sample])
-        
+
         self.output.append(sample)
-        
+
         return sample

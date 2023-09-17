@@ -1,6 +1,7 @@
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
-from datetime import datetime
 import os
+from datetime import datetime
+
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
 
 class Flow:
