@@ -40,6 +40,9 @@ class Flow:
     def _playback(self):
         return self.input == "playback"
 
+    def set_synthetic(self):
+        self.params.master_board = BoardIds.SYNTHETIC_BOARD
+
     def start(self):
         os.makedirs("logs", exist_ok=True)
         self.board = BoardShim(self.board_id, self.params)
@@ -50,7 +53,6 @@ class Flow:
         if self._cyton():
             return self.board.get_sampling_rate(self.board_id)
         return self.board.get_sampling_rate(self.params.master_board)
-
 
     def stop(self):
         self.board.stop_stream()

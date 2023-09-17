@@ -38,7 +38,9 @@ def main():
     arg_parser.add_argument("--threshold", type=int, help="The EMG threshold, default 8", default=8)
     arg_parser.add_argument("--mode", help="'setup' (default), 'game' or 'instructions'", default="setup")
     arg_parser.add_argument("--channel", type=int,
-                            help="no. of channel that contains the EMG channel to track. Default is 0", default=0)
+                            help="no. of channel that contains the EMG channel to track. Default is 1", default=1)
+    arg_parser.add_argument("--synthetic", help="whether the data is synthetic", action="store_true", default=False)
+
     CHANNEL = arg_parser.parse_args().channel
     THRESHOLD = arg_parser.parse_args().threshold
     print(f"Using channel {CHANNEL}")
@@ -57,6 +59,8 @@ def main():
         return
 
     flow = create_flow(mode=arg_parser.parse_args().mode, channel=CHANNEL, input_=arg_parser.parse_args().input)
+    if arg_parser.parse_args().synthetic:
+        flow.set_synthetic()
     flow.start()
 
     emg_filter = Filter(sampling_frequency=flow.get_sample_rate(),
