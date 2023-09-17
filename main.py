@@ -60,7 +60,8 @@ def main():
     flow.start()
 
     emg_filter = Filter(sampling_frequency=flow.get_sample_rate(),
-                        bandpass_high=min(flow.get_sample_rate() / 2 - 1, 200))
+                        bandpass_low=5,
+                        bandpass_high=50)
 
     clock = pygame.time.Clock()
     running = True
