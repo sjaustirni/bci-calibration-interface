@@ -24,6 +24,10 @@ class Filter:
 
         self.b, self.a = self._create_bandpass()
 
+        self.baseline_start = None
+        self.baseline_end = None
+        self.baseline = None
+
     def _create_bandpass(self):
         nyquist = 0.5 * self.fs
         low = self.bandpass_low / nyquist
@@ -53,3 +57,18 @@ class Filter:
         self.output.append(sample)
 
         return sample
+
+    def mark_as_baseline(self):
+        if self.baseline_start is None:
+            self.baseline_start = len(self.output)
+
+    def mark_as_NOT_baseline(self):
+        if self.baseline_start is None:
+            raise ValueError("Baseline start has not been marked")
+        if self.baseline_end is None:
+            self.baseline_end = len(self.output)
+            self.baseline = np.mean(self.output[self.baseline_start:self.baseline_end])
+
+    def reset_baseline(self):
+        self.baseline_start = None
+        self.baseline_end = None

@@ -19,7 +19,7 @@ def create_scene(mode, threshold):
     if mode == "setup":
         return EMGSetup(threshold)
     elif mode == "game":
-        return GameScene(threshold)
+        return GameScene()
     elif mode == "instructions":
         return InstructionScene(threshold)
     else:
@@ -32,6 +32,15 @@ def create_flow(mode, channel, input_):
     return Flow(mode=mode, channel=channel, input_=input_)
 
 
+def adapt_threshold(scene: GameScene, emg_filter: Filter):
+    if scene.current_phase == "Relax":
+        emg_filter.mark_as_baseline()
+    elif scene.current_phase == "MotorImagery":
+        emg_filter.mark_as_NOT_baseline()
+    if emg_filter.baseline is not None:
+        scene.set_threshold(emg_filter.baseline + 150)
+
+
 def main():
     arg_parser = argparse.ArgumentParser(description="BCI calibration")
     arg_parser.add_argument("--fullscreen", action="store_true", help="Run in fullscreen mode", default=False)
@@ -42,6 +51,7 @@ def main():
                             help="no. of channel that contains the EMG channel to track. Default is 1", default=1)
     arg_parser.add_argument("--synthetic", help="whether the data is synthetic", action="store_true", default=False)
 
+    os.makedirs("logs", exist_ok=True)
     CHANNEL = arg_parser.parse_args().channel
     THRESHOLD = arg_parser.parse_args().threshold
     print(f"Using channel {CHANNEL}")
@@ -75,6 +85,8 @@ def main():
         if emg is not None:
             for sample in emg:
                 emg_filter.apply(sample)
+        if type(scene) == GameScene:
+            adapt_threshold(scene, emg_filter)
 
         for event in pygame.event.get():
             # Did the user click the window close button?
@@ -95,7 +107,7 @@ def main():
         scene.draw(screen, last_sample)
         clock.tick(60)
 
-    plt.plot(emg_filter.output)
+    plt.plot(emg_filter.output[100:]) # Skip the first 100 samples because they are noisy
     plt.savefig(f"logs/{datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')}_{arg_parser.parse_args().mode}.png",
                 format="png")
     plt.show()

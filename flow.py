@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
@@ -44,7 +43,6 @@ class Flow:
         self.params.master_board = BoardIds.SYNTHETIC_BOARD
 
     def start(self):
-        os.makedirs("logs", exist_ok=True)
         self.board = BoardShim(self.board_id, self.params)
         self.board.prepare_session()
         # Get formatted UTC time

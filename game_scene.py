@@ -134,8 +134,8 @@ class Player:
 
 
 class GameScene(Scene):
-    def __init__(self, threshold):
-        super().__init__(threshold)
+    def __init__(self):
+        super().__init__()
 
         self.background_image = pygame.image.load("assets/Backgrounds/backgroundEmpty.png")
         self.background_image = pygame.transform.scale(self.background_image, pygame.display.get_window_size())
@@ -153,7 +153,7 @@ class GameScene(Scene):
         self.tile_width = self.ground.get_width()
         self.tile_height = self.ground.get_height()
 
-        self.obstacle_no = 1
+        self.obstacle_no = 5
         self.tiles_per_obstacle = 26  # (a little over) 5 seconds at 60 fps
         self.start_tile = 31
 
@@ -171,7 +171,7 @@ class GameScene(Scene):
         self.current_phase = None
 
     def draw(self, screen, emg):
-        if self.started and emg > self.threshold:
+        if self.started and self.threshold and emg > self.threshold:
             self.player.jump()
         # Only move player forward if the game is running and they are not under penalty
         if self.started and self.time_since_hit_gt(HIT_PENALTY) and not self.reached_goal():
@@ -237,6 +237,9 @@ class GameScene(Scene):
         else:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
                 self.started = True
+
+    def set_threshold(self, threshold):
+        self.threshold = threshold
 
     def _get_phase(self):
         if not self.started or self.reached_goal():

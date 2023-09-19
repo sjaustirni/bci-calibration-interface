@@ -2,7 +2,7 @@ from datetime import datetime
 
 
 class Scene:
-    def __init__(self, threshold):
+    def __init__(self, threshold=None):
         self.threshold = threshold
         self.now = datetime.utcnow()
         self.f = open(f"logs/{self.now.strftime('%Y-%m-%d-%H-%M-%S')}-interaction.csv", "w")
