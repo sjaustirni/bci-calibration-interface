@@ -37,8 +37,9 @@ def adapt_threshold(scene: GameScene, emg_filter: Filter):
         emg_filter.mark_as_baseline()
     elif scene.current_phase == "MotorImagery":
         emg_filter.mark_as_NOT_baseline()
+        emg_filter.reset_baseline()
     if emg_filter.baseline is not None:
-        scene.set_threshold(emg_filter.baseline + 150)
+        scene.set_threshold(emg_filter.baseline + emg_filter.baseline_std * 3)
 
 
 def main():
