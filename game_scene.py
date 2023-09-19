@@ -85,9 +85,11 @@ class Player:
             return
         # Only allow jumping if we are not under penalty
         if self.last_hit is None or self.game.time_since_hit_gt(HIT_PENALTY):
+            self.game.log("PlayerJump", None)
             self.vel_y = -10
 
     def hit(self):
+        self.game.log("PlayerHit", None)
         self.last_hit = pygame.time.get_ticks()
         # Reset the velocity if we have hit corner
         self.vel_y = 0
@@ -166,6 +168,7 @@ class GameScene(Scene):
         self.started = False
 
         self.flag = Flag(self)
+        self.current_phase = None
 
     def draw(self, screen, emg):
         if self.started and emg > self.threshold:
@@ -196,6 +199,8 @@ class GameScene(Scene):
         pygame.display.flip()
 
     def update(self, screen):
+        self.log_phase(self._get_phase())
+
         player_colour = constants.BLUE
         obstacle_colour = constants.YELLOW
         hit_colour = constants.RED
@@ -232,6 +237,20 @@ class GameScene(Scene):
         else:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_s:
                 self.started = True
+
+    def _get_phase(self):
+        if not self.started or self.reached_goal():
+            return "NotRunning"
+        non_jumpy_tiles = self.get_non_jumpy_tiles()
+        if self.current_game_tile() in non_jumpy_tiles:
+            return "Relax"
+        else:
+            return "MotorImagery"
+
+    def log_phase(self, phase):
+        if phase != self.current_phase:
+            self.log("Phase", phase)
+            self.current_phase = phase
 
     def _generate_obstacles(self):
         obstacles = []

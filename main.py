@@ -63,6 +63,7 @@ def main():
     if arg_parser.parse_args().synthetic:
         flow.set_synthetic()
     flow.start()
+    scene.log("EMGstart", None, flow.now)
 
     emg_filter = Filter(sampling_frequency=flow.get_sample_rate(), bandpass_low=5, bandpass_high=50)
 

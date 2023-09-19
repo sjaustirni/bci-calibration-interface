@@ -8,8 +8,7 @@ class Flow:
     def __init__(self, mode, channel=0, input_="cyton"):
         self.input = input_
         self.board = None
-        # Get formatted UTC time
-        self.now = datetime.utcnow()
+        self.now = None
         self.mode = mode
         self.channel = channel
 
@@ -48,6 +47,8 @@ class Flow:
         os.makedirs("logs", exist_ok=True)
         self.board = BoardShim(self.board_id, self.params)
         self.board.prepare_session()
+        # Get formatted UTC time
+        self.now = datetime.utcnow()
         self.board.start_stream(250 * 2, f"file://./logs/{self.now.strftime('%Y-%m-%d-%H-%M-%S')}_{self.mode}.csv:w")
 
     def get_sample_rate(self):

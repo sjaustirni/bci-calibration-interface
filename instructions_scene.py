@@ -11,8 +11,8 @@ MOTOR_IMAGERY = "Perform the motor imagery task"
 RELAX = "Relax"
 
 
-class TimingTask(Scene):
-    def __init__(self, no_attempts=5, prepare_phase: int = 2, motor_imagery_phase: int = 5, relax_phase: int = 5, ):
+class TimingTask:
+    def __init__(self, scene, no_attempts=5, prepare_phase: int = 2, motor_imagery_phase: int = 5, relax_phase: int = 5, ):
         """
         :param no_attempts: The number of attempts to perform the motor imagery task
         :param prepare_phase: Number of seconds to prepare
@@ -20,19 +20,24 @@ class TimingTask(Scene):
         :param relax_phase: Number of seconds to relax
         """
         super().__init__()
+        self.scene = scene
         self.no_attempts = no_attempts
         self.prepare_phase = prepare_phase
         self.motor_imagery_phase = motor_imagery_phase
         self.relax_phase = relax_phase
         self.clock_start = None
 
+        self.current_phase = None
+
         self.attempt_duration = self.prepare_phase + self.motor_imagery_phase + self.relax_phase
 
     def start(self):
         self.clock_start = time.time()
+        self.scene.log("InstructionStart", None)
 
     def stop(self):
         self.clock_start = None
+        self.scene.log("InstructionStop", None)
 
     def get_phase(self):
         if self.clock_start is None:
@@ -45,19 +50,27 @@ class TimingTask(Scene):
         partial_attempt = elapsed % self.attempt_duration
 
         if full_attempts >= self.no_attempts:
+            self._log_phase("NotRunning")
             return NOT_RUNNING, None, None, None
-
         if partial_attempt < self.prepare_phase:
+            self._log_phase("Prepare")
             return PREPARE, self.prepare_phase - partial_attempt, self.prepare_phase, constants.YELLOW
         elif partial_attempt < self.prepare_phase + self.motor_imagery_phase:
+            self._log_phase("MotorImagery")
             return MOTOR_IMAGERY, self.prepare_phase + self.motor_imagery_phase - partial_attempt, self.motor_imagery_phase, constants.BLUE
         elif partial_attempt < self.prepare_phase + self.motor_imagery_phase + self.relax_phase:
+            self._log_phase("Relax")
             return RELAX, self.prepare_phase + self.motor_imagery_phase + self.relax_phase - partial_attempt, self.relax_phase, constants.GREEN
-
+        self._log_phase("NotRunning")
         return NOT_RUNNING, None, None, None
 
+    def _log_phase(self, phase):
+        if phase != self.current_phase:
+            self.scene.log("Phase", phase)
+            self.current_phase = phase
 
-class InstructionScene:
+
+class InstructionScene(Scene):
     """
     Displays the instructions for motor imagery without giving any feedback.
     """
@@ -66,7 +79,7 @@ class InstructionScene:
         super().__init__(threshold)
 
         self.font = pygame.font.SysFont('Arial', 30)
-        self.timing_task = TimingTask()
+        self.timing_task = TimingTask(self)
 
     def draw(self, screen, _emg):
         # Fill the background with white
