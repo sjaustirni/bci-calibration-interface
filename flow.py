@@ -4,7 +4,7 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 
 
 class Flow:
-    def __init__(self, mode, channel=0, input_="cyton"):
+    def __init__(self, mode, channel=0, input_="cyton", file_="examples/example_1.csv"):
         self.input = input_
         self.board = None
         self.now = None
@@ -19,7 +19,7 @@ class Flow:
         self.params = BrainFlowInputParams()
         if self._playback():
             self.params.master_board = BoardIds.CYTON_BOARD
-            self.params.file = "emg-example.csv"
+            self.params.file = file_
 
         if self._openbci():
             self.params.ip_port = 6677

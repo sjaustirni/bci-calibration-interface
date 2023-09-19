@@ -26,10 +26,10 @@ def create_scene(mode, threshold):
         raise ValueError(f"Unknown mode: {mode}")
 
 
-def create_flow(mode, channel, input_):
+def create_flow(mode, channel, input_, file_):
     if input_ not in ["cyton", "playback", "openbci"]:
         raise ValueError(f"Unknown input: {input_}")
-    return Flow(mode=mode, channel=channel, input_=input_)
+    return Flow(mode=mode, channel=channel, input_=input_, file_=file_)
 
 
 def adapt_threshold(scene: GameScene, emg_filter: Filter):
@@ -46,6 +46,7 @@ def main():
     arg_parser = argparse.ArgumentParser(description="BCI calibration")
     arg_parser.add_argument("--fullscreen", action="store_true", help="Run in fullscreen mode", default=False)
     arg_parser.add_argument("--input", help="'cyton' (default), 'playback' or 'openbci'", default="cyton")
+    arg_parser.add_argument("--file", help="The file to playback", default="examples/example_1.csv")
     arg_parser.add_argument("--threshold", type=int, help="The EMG threshold, default 8", default=8)
     arg_parser.add_argument("--mode", help="'setup' (default), 'game' or 'instructions'", default="setup")
     arg_parser.add_argument("--channel", type=int,
@@ -70,7 +71,7 @@ def main():
         print(e)
         return
 
-    flow = create_flow(mode=arg_parser.parse_args().mode, channel=CHANNEL, input_=arg_parser.parse_args().input)
+    flow = create_flow(mode=arg_parser.parse_args().mode, channel=CHANNEL, input_=arg_parser.parse_args().input, file_=arg_parser.parse_args().file)
     if arg_parser.parse_args().synthetic:
         flow.set_synthetic()
     flow.start()
