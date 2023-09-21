@@ -171,7 +171,7 @@ class GameScene(Scene):
         self.current_phase = None
 
     def draw(self, screen, emg):
-        if self.started and self.threshold and emg > self.threshold:
+        if self.started and self.threshold and emg > self.threshold and self.time_since_hit_gt(HIT_PENALTY + 2000):
             self.player.jump()
         # Only move player forward if the game is running and they are not under penalty
         if self.started and self.time_since_hit_gt(HIT_PENALTY) and not self.reached_goal():
