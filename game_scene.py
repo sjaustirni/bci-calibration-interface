@@ -239,6 +239,8 @@ class GameScene(Scene):
                 self.started = True
 
     def set_threshold(self, threshold):
+        if threshold != self.threshold:
+            self.log("Threshold", threshold)
         self.threshold = threshold
 
     def _get_phase(self):
