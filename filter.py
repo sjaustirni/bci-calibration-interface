@@ -40,9 +40,6 @@ class Filter:
         :param sample: New sample to be filtered
         :return: Filtered sample
         """
-        # Rectify the input signal
-        sample = abs(sample)
-        
         # Add the sample to the input buffer
         self.input.append(sample)
         
@@ -71,7 +68,7 @@ class Filter:
         if self.baseline_end is None:
             self.baseline_end = len(self.output)
             actual_end = int(250 / 2)  # half a second
-            actual_start = 250 * 1 + actual_end  # 1 second
+            actual_start = 250 * 3 + actual_end  # 3 seconds
             data = self.output[self.baseline_end - actual_start:self.baseline_end - actual_end]
             self.baseline = np.mean(data)
             self.baseline_std = np.std(data)
