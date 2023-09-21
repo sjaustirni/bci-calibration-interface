@@ -39,9 +39,6 @@ class Flow:
     def _playback(self):
         return self.input == "playback"
 
-    def set_synthetic(self):
-        self.params.master_board = BoardIds.SYNTHETIC_BOARD
-
     def start(self):
         self.board = BoardShim(self.board_id, self.params)
         self.board.prepare_session()

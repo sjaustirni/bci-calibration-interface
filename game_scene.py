@@ -136,7 +136,8 @@ class Player:
 class GameScene(Scene):
     def __init__(self):
         super().__init__()
-
+        
+        self.threshold = None
         self.background_image = pygame.image.load("assets/Backgrounds/backgroundEmpty.png")
         self.background_image = pygame.transform.scale(self.background_image, pygame.display.get_window_size())
 
