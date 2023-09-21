@@ -77,7 +77,7 @@ def main():
     flow.start()
     scene.log("EMGstart", None, flow.now)
 
-    emg_filter = Filter(sampling_frequency=flow.get_sample_rate(), bandpass_low=5, bandpass_high=50)
+    emg_filter = Filter(sampling_frequency=flow.get_sample_rate(), bandpass_low=20, bandpass_high=45)
 
     clock = pygame.time.Clock()
     running = True

@@ -1,5 +1,5 @@
 import numpy as np
-from scipy import signal
+from scipy.signal import lfilter_zi, lfilter, iirfilter
 
 
 class Filter:
@@ -20,21 +20,19 @@ class Filter:
         self.mean_kernel_size = mean_kernel_size if mean_kernel_size else int(self.fs / 3)
 
         self.input = []
+        self.bandpassed = []
         self.output = []
 
         self.b, self.a = self._create_bandpass()
-
+        self.zi = lfilter_zi(self.b, self.a)
+        
         self.baseline_start = None
         self.baseline_end = None
         self.baseline = None
         self.baseline_std = None
-
+    
     def _create_bandpass(self):
-        nyquist = 0.5 * self.fs
-        low = self.bandpass_low / nyquist
-        high = self.bandpass_high / nyquist
-
-        b, a = signal.butter(self.bandpass_order, [low, high], btype='band')
+        b, a = iirfilter(self.bandpass_order, [self.bandpass_low, self.bandpass_high], fs = self.fs, btype='band', ftype='butter')
         return b, a
 
     def apply(self, sample):
@@ -49,11 +47,15 @@ class Filter:
         self.input.append(sample)
 
         # Apply the bandpass filter
-        if len(self.input) >= self.bandpass_order:
-            sample = signal.lfilter(self.b, self.a, self.input[-self.bandpass_order:] + [sample])[self.bandpass_order]
-        # Apply the mean filter
-        if len(self.input) >= self.mean_kernel_size:
-            sample = np.mean(self.input[-self.mean_kernel_size:] + [sample])
+        sample, self.zi = lfilter(self.b, self.a, [sample], zi=self.zi)
+        sample = abs(sample[0])
+        self.bandpassed.append(sample)
+        
+        # Apply mean filter
+        if len(self.bandpassed) > self.mean_kernel_size:
+            sample = np.mean(self.bandpassed[-self.mean_kernel_size:] + [sample])
+        else:
+            sample = np.mean(self.bandpassed + [sample])
 
         self.output.append(sample)
 
