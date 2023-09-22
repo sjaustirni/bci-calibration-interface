@@ -106,6 +106,6 @@ class InstructionScene(Scene):
         if seconds_left is not None and total_phase_time is not None and colour is not None:
             max_width = size[0] * 0.5
             width = max_width * (seconds_left / total_phase_time)
-            pygame.draw.rect(screen, colour, pygame.Rect(center[0] - max_width / 2, center[1], width, 30))
-            seconds_left_surf = self.font.render(f"{seconds_left:.1f}", True, constants.TEXT)
-            screen.blit(seconds_left_surf, (10, 50))
+            # Don't draw a bar if the phase is PREPARE because it's too short
+            if phase != PREPARE:
+                pygame.draw.rect(screen, colour, pygame.Rect(center[0] - max_width / 2, center[1], width, 30))
