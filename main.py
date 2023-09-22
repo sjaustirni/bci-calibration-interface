@@ -32,7 +32,7 @@ def create_flow(mode, channel, input_, file_):
 def adapt_threshold(scene: GameScene, emg_filter: Filter):
     if scene.current_phase == "Relax":
         emg_filter.mark_as_baseline()
-    elif scene.current_phase == "MotorImagery":
+    elif scene.current_phase == "MotorTask":
         emg_filter.mark_as_NOT_baseline()
         emg_filter.reset_baseline()
     if emg_filter.baseline is not None:

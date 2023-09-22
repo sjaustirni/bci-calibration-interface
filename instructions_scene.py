@@ -6,30 +6,30 @@ import constants
 from scene import Scene
 
 NOT_RUNNING = "Not running"
-PREPARE = "Prepare to perform the motor imagery task"
-MOTOR_IMAGERY = "Perform the motor imagery task"
-RELAX = "Relax"
+PREPARE = "Forbered dig på bevægelse"
+MOTOR_TASK = "Bevæg håndledet"
+RELAX = "Slap af"
 
 
 class TimingTask:
-    def __init__(self, scene, no_attempts=5, prepare_phase: int = 2, motor_imagery_phase: int = 5, relax_phase: int = 5, ):
+    def __init__(self, scene, no_attempts=5, prepare_phase: int = 2, motor_task_phase: int = 5, relax_phase: int = 5, ):
         """
         :param no_attempts: The number of attempts to perform the motor imagery task
         :param prepare_phase: Number of seconds to prepare
-        :param motor_imagery_phase: Number of seconds to perform the motor imagery task
+        :param motor_task_phase: Number of seconds to perform the motor imagery task
         :param relax_phase: Number of seconds to relax
         """
         super().__init__()
         self.scene = scene
         self.no_attempts = no_attempts
         self.prepare_phase = prepare_phase
-        self.motor_imagery_phase = motor_imagery_phase
+        self.motor_task_phase = motor_task_phase
         self.relax_phase = relax_phase
         self.clock_start = None
 
         self.current_phase = None
 
-        self.attempt_duration = self.prepare_phase + self.motor_imagery_phase + self.relax_phase
+        self.attempt_duration = self.prepare_phase + self.motor_task_phase + self.relax_phase
 
     def start(self):
         self.clock_start = time.time()
@@ -55,12 +55,12 @@ class TimingTask:
         if partial_attempt < self.prepare_phase:
             self._log_phase("Prepare")
             return PREPARE, self.prepare_phase - partial_attempt, self.prepare_phase, constants.YELLOW
-        elif partial_attempt < self.prepare_phase + self.motor_imagery_phase:
-            self._log_phase("MotorImagery")
-            return MOTOR_IMAGERY, self.prepare_phase + self.motor_imagery_phase - partial_attempt, self.motor_imagery_phase, constants.BLUE
-        elif partial_attempt < self.prepare_phase + self.motor_imagery_phase + self.relax_phase:
+        elif partial_attempt < self.prepare_phase + self.motor_task_phase:
+            self._log_phase("MotorTask")
+            return MOTOR_TASK, self.prepare_phase + self.motor_task_phase - partial_attempt, self.motor_task_phase, constants.BLUE
+        elif partial_attempt < self.prepare_phase + self.motor_task_phase + self.relax_phase:
             self._log_phase("Relax")
-            return RELAX, self.prepare_phase + self.motor_imagery_phase + self.relax_phase - partial_attempt, self.relax_phase, constants.GREEN
+            return RELAX, self.prepare_phase + self.motor_task_phase + self.relax_phase - partial_attempt, self.relax_phase, constants.GREEN
         self._log_phase("NotRunning")
         return NOT_RUNNING, None, None, None
 

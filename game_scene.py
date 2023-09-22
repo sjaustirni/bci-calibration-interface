@@ -80,7 +80,7 @@ class Player:
         # No double jump allowed
         if self.is_jumping():
             return
-        # Only allow jumping in the motor imagery (perform) phase
+        # Only allow jumping in the motor task (perform) phase
         if self.game.current_game_tile() in self.game.get_non_jumpy_tiles():
             return
         # Only allow jumping if we are not under penalty
@@ -251,7 +251,7 @@ class GameScene(Scene):
         if self.current_game_tile() in non_jumpy_tiles:
             return "Relax"
         else:
-            return "MotorImagery"
+            return "MotorTask"
 
     def log_phase(self, phase):
         if phase != self.current_phase:
