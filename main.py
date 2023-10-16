@@ -70,7 +70,7 @@ def main():
     flow.start()
     scene.log("EMGstart", None, flow.now)
     
-    emg_filter = Filter(sampling_frequency=flow.get_sample_rate(), bandpass_low=20, bandpass_high=45)
+    emg_filter = Filter(sampling_frequency=flow.get_sample_rate(), bandpass_low=30, bandpass_high=45)
     
     clock = pygame.time.Clock()
     running = True
@@ -101,7 +101,7 @@ def main():
             last_sample = None
         scene.draw(screen, last_sample)
         clock.tick(60)
-    
+
     plt.plot([el / flow.get_sample_rate() for el in range(100, len(emg_filter.output))],
              emg_filter.output[100:])  # Skip the first 100 samples because they are noisy
     plt.savefig(f"logs/{datetime.utcnow().strftime('%Y-%m-%d-%H-%M-%S')}_{arg_parser.parse_args().mode}.png",
@@ -109,7 +109,7 @@ def main():
     plt.xlabel("Time / s")
     plt.ylabel("Amplitude")
     plt.show()
-    
+
     plt.plot([el / flow.get_sample_rate() for el in range(len(emg_filter.input))], emg_filter.input)
     plt.xlabel("Time / s")
     plt.ylabel("Amplitude")

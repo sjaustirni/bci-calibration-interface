@@ -1,5 +1,5 @@
 brainflow==5.9.0
 pygame==2.5.1
-matplotlib==3.7.2
+matplotlib==3.8.0
 scipy==1.11.2
-numpy~=1.25.2
+numpy~=1.26.0
